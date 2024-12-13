@@ -1,15 +1,34 @@
 import React from 'react';
 import MarketCard from '../components/markets/MarketCard';
 import { useUpbitWebSocket } from '../hooks/useUpbitWebSocket';
+import { WS_STATUS } from '../constants/websocket';
 
 const FavoritesPage = ({ favorites, onToggleFavorite }) => {
   console.log('Favorites:', favorites);
-  const realTimeData = useUpbitWebSocket(favorites);
+  const { realTimeData, status, error } = useUpbitWebSocket(favorites);
+
   console.log('RealTimeData:', realTimeData);
   if (favorites.length === 0) {
     return (
       <div className="text-center text-[#CBCBCB]/50 mt-8">
         즐겨찾기에 등록된 코인이 없습니다
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-[#FD668B]/50 mt-8">
+        {error}
+      </div>
+    );
+  }
+
+  // 연결 상태에 따른 표시
+  if (status === WS_STATUS.CONNECTING) {
+    return (
+      <div className="text-center text-[#CBCBCB]/50 mt-8">
+        실시간 데이터에 연결 중...
       </div>
     );
   }
