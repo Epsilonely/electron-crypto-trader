@@ -1,42 +1,55 @@
 import React from 'react';
 import CurrentTime from './CurrentTime';
 
+const TabButton = ({ label, isActive, onClick }) => (
+  <button 
+    className={`
+      relative px-4 py-2 font-medium transition-all duration-300
+      ${isActive 
+        ? 'text-blue-400' 
+        : 'text-gray-400 hover:text-gray-300'
+      }
+    `}
+    onClick={onClick}
+  >
+    {label}
+    {/* 밑줄 애니메이션 */}
+    <div 
+      className={`
+        absolute bottom-0 left-0 w-full h-0.5 
+        transition-transform duration-300 ease-out
+        ${isActive 
+          ? 'bg-blue-400 scale-x-100' 
+          : 'bg-transparent scale-x-0'
+        }
+      `}
+    />
+  </button>
+);
+
 const Tab = ({ activeTab, onTabChange }) => {
+  const tabs = [
+    { id: 'markets', label: '코인 목록' },
+    { id: 'favorites', label: '즐겨찾기' },
+    { id: 'alerts', label: '알람 설정' },
+  ];
   return (
-    <div className="flex justify-between items-center border-b border-slate-700 mb-6">
-      <div className="flex">
-        <button 
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'markets' 
-              ? 'text-blue-400 border-b-2 border-blue-400' 
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-          onClick={() => onTabChange('markets')}
-        >
-          코인 목록
-        </button>
-        <button 
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'favorites' 
-              ? 'text-blue-400 border-b-2 border-blue-400' 
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-          onClick={() => onTabChange('favorites')}
-        >
-          즐겨찾기
-        </button>
-        <button 
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'alerts' 
-              ? 'text-blue-400 border-b-2 border-blue-400' 
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-          onClick={() => onTabChange('alerts')}
-        >
-          알람 설정
-        </button>
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#18181C] shadow-lg">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center border-b border-slate-700 px-6">
+          <div className="flex">
+            {tabs.map(tab => (
+              <TabButton
+                key={tab.id}
+                label={tab.label}
+                isActive={activeTab === tab.id}
+                onClick={() => onTabChange(tab.id)}
+              />
+            ))}
+          </div>
+          <CurrentTime />
+        </div>
       </div>
-      <CurrentTime />
     </div>
   );
 };
