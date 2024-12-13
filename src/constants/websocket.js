@@ -1,0 +1,17 @@
+export const WS_STATUS = {
+    DISCONNECTED: 'DISCONNECTED',
+    CONNECTING: 'CONNECTING',
+    CONNECTED: 'CONNECTED'
+};
+
+export const WS_READY_STATE = {
+    CONNECTING: 0,
+    OPEN: 1,
+    CLOSING: 2,
+    CLOSED: 3
+};
+
+export const WS_CONFIG = {
+    RECONNECT_INTERVAL: 1000,
+    MAX_RECONNECT_ATTEMPTS: 5
+};
