@@ -34,7 +34,7 @@ function createWindow() {
  // 메뉴바 제거
  win.removeMenu();
 
- // win.webContents.openDevTools();
+ win.webContents.openDevTools();
 
  win.loadFile('src/index.html');
 }

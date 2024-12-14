@@ -31,7 +31,7 @@ const Tab = ({ activeTab, onTabChange }) => {
   const tabs = [
     { id: 'markets', label: '코인 목록' },
     { id: 'favorites', label: '즐겨찾기' },
-    { id: 'alerts', label: '알람 설정' },
+    { id: 'alarms', label: '알람 목록' },
   ];
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-[#18181C] shadow-lg">
