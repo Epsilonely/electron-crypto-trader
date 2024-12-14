@@ -4,11 +4,14 @@ import MarketsPage from './pages/Markets';
 import { fetchMarkets } from './services/api';
 import FavoritesPage from './pages/Favorites';
 import { useFavorites } from './hooks/useFavorites';
+import AlarmsPage from './pages/Alarms';
+import { useAlarms } from './hooks/useAlarms';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('markets');
   const [markets, setMarkets] = useState([]);
   const { favorites, toggleFavorite } = useFavorites();
+  const { alarms, addAlarm, removeAlarm, checkAlarmCondition } = useAlarms();
 
   useEffect(() => {
     const getMarkets = async () => {
@@ -20,13 +23,13 @@ const App = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#18181C]"> {/* 전체 배경색 설정 */}
+    <div className="bg-[#18181C]"> {/* 전체 배경색 설정 */}
       <div className="p-6 max-w-7xl mx-auto overflow-y-auto scrollbar-area h-screen">
         <Tab activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="p-6 pt-10 max-w-7xl mx-auto overflow-y-auto scrollbar-area">
+        <div className="p-6 pt-10 max-w-7xl mx-auto overflow-y-auto">
           {activeTab === 'markets' && <MarketsPage markets={markets} favorites={favorites} onToggleFavorite={toggleFavorite} />}
-          {activeTab === 'favorites' && <FavoritesPage favorites={favorites} onToggleFavorite={toggleFavorite} />}
-          {activeTab === 'alerts' && <div className="text-white">알람 설정 페이지는 다음 단계에서 구현</div>}
+          {activeTab === 'favorites' && <FavoritesPage favorites={favorites} onToggleFavorite={toggleFavorite} addAlarm={addAlarm}/>}
+          {activeTab === 'alarms' && <AlarmsPage alarms={alarms} onRemoveAlarm={removeAlarm}/>}
         </div>
       </div>
     </div>
