@@ -3,7 +3,7 @@ import axios from 'axios';
 import MarketCard from './MarketCard';
 import SearchBar from './SearchBar';
 
-const MarketList = ({ markets, favorites = [], onToggleFavorite }) => {
+const MarketList = ({ markets, favorites = [], onToggleFavorite, realTimeData }) => {
   const [prices, setPrices] = useState({});
   const [prevPrices, setPrevPrices] = useState({});
   const [changes, setChanges] = useState({});
@@ -21,7 +21,7 @@ const MarketList = ({ markets, favorites = [], onToggleFavorite }) => {
             markets: marketCodes
           }
         });
-        
+
         const newPrices = {};
         const newChanges = {};
         const newVolumes = {};
@@ -54,6 +54,15 @@ const MarketList = ({ markets, favorites = [], onToggleFavorite }) => {
     return () => clearInterval(interval);
   }, [markets]);
 
+  // 즐겨찾기된 코인은 웹소켓 데이터 사용
+  const getPrice = (market) => {
+    const isFavorite = favorites.some(fav => fav.market === market.market);
+    if (isFavorite && realTimeData && realTimeData[market.market]) {
+      return realTimeData[market.market].trade_price; // trade_price 값을 반환
+    }
+    return prices[market.market];
+  };
+
   // 거래대금 기준으로 정렬된 마켓 목록 생성
   const sortedMarkets = [...markets].sort((a, b) => {
     const volumeA = volumes[a.market]?.price || 0;
@@ -64,8 +73,8 @@ const MarketList = ({ markets, favorites = [], onToggleFavorite }) => {
   // 검색어에 따라 마켓 필터링
   const filteredMarkets = sortedMarkets.filter(market => {
     const search = searchTerm.toLowerCase();
-    return market.korean_name.toLowerCase().includes(search) || 
-           market.market.toLowerCase().includes(search);
+    return market.korean_name.toLowerCase().includes(search) ||
+      market.market.toLowerCase().includes(search);
   });
 
   const handleSearch = (value) => {
@@ -80,7 +89,7 @@ const MarketList = ({ markets, favorites = [], onToggleFavorite }) => {
           <MarketCard
             key={market.market}
             market={market}
-            price={prices[market.market]}
+            price={getPrice(market)}
             prevPrices={prevPrices[market.market]}
             change={changes[market.market]}
             volume={volumes[market.market]}
