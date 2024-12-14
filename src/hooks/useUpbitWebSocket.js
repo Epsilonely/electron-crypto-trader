@@ -1,28 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { WS_STATUS, WS_CONFIG, WS_READY_STATE } from '../constants/websocket';
 
 export const useUpbitWebSocket = (markets) => {
   const [realTimeData, setRealTimeData] = useState({});
   const [status, setStatus] = useState(WS_STATUS.DISCONNECTED);
   const [error, setError] = useState(null);
+  const wsRef = useRef(null);
 
-  const connect = useCallback(() => {
-    if (!markets || markets.length === 0) return null;
+  const connectWebSocket = useCallback(() => {
+    // 이미 연결 중이거나 연결된 상태면 리턴
+    if (wsRef.current?.readyState === WS_READY_STATE.CONNECTING ||
+      wsRef.current?.readyState === WS_READY_STATE.OPEN) {
+      return;
+    }
 
-    setStatus(WS_STATUS.CONNECTING);
     const ws = new WebSocket('wss://api.upbit.com/websocket/v1');
+    wsRef.current = ws;
 
     ws.onopen = () => {
+      console.log('WebSocket connected');
       setStatus(WS_STATUS.CONNECTED);
       setError(null);
-      const subscription = [
-        { ticket: "UNIQUE_TICKET" },
-        {
-          type: "ticker",
-          codes: markets.map(market => market.market)
-        }
-      ];
-      ws.send(JSON.stringify(subscription));
+
+      // 연결 직후 구독 정보 전송
+      if (markets.length > 0) {
+        const subscription = [
+          { ticket: "UNIQUE_TICKET" },
+          {
+            type: "ticker",
+            codes: markets.map(market => market.market)
+          }
+        ];
+        ws.send(JSON.stringify(subscription));
+        console.log('Initial subscription:', markets.map(market => market.market));
+      }
     };
 
     ws.onmessage = async (event) => {
@@ -55,21 +66,45 @@ export const useUpbitWebSocket = (markets) => {
     };
 
     ws.onclose = () => {
+      console.log('WebSocket disconnected');
       setStatus(WS_STATUS.DISCONNECTED);
-      setTimeout(() => connect(), WS_CONFIG.RECONNECT_INTERVAL);
+      wsRef.current = null;
     };
-
-    return ws;
   }, [markets]);
 
+  // markets 배열 변경 감지
   useEffect(() => {
-    const ws = connect();
-    return () => {
-      if (ws && ws.readyState === WS_READY_STATE.OPEN) {
-        ws.close();
+    if (markets.length > 0) {
+      if (wsRef.current?.readyState === WS_READY_STATE.OPEN) {
+        // 이미 연결된 상태면 구독 정보만 업데이트
+        const subscription = [
+          { ticket: "UNIQUE_TICKET" },
+          {
+            type: "ticker",
+            codes: markets.map(market => market.market)
+          }
+        ];
+        wsRef.current.send(JSON.stringify(subscription));
+        console.log('Subscription updated:', markets.map(market => market.market));
+      } else {
+        // 연결이 없으면 새로 연결 시도
+        connectWebSocket();
       }
-    };
-  }, [connect]);
+    } else {
+      // markets가 비어있을 때 처리
+      if (wsRef.current?.readyState === WS_READY_STATE.OPEN) {
+        const emptySubscription = [
+          { ticket: "UNIQUE_TICKET" },
+          {
+            type: "ticker",
+            codes: []
+          }
+        ];
+        wsRef.current.send(JSON.stringify(emptySubscription));
+        console.log('Cleared all subscriptions');
+      }
+    }
+  }, [markets, connectWebSocket]);
 
   return { realTimeData, status, error };
 };

@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import MarketCard from '../components/markets/MarketCard';
 import AlarmModal from '../components/modals/AlarmModals';
-import { useUpbitWebSocket } from '../hooks/useUpbitWebSocket';
 import { WS_STATUS } from '../constants/websocket';
 
-const FavoritesPage = ({ favorites, onToggleFavorite, addAlarm }) => {
-  const { realTimeData, status, error } = useUpbitWebSocket(favorites);
+const FavoritesPage = ({ favorites, onToggleFavorite, realTimeData, addAlarm, status, error }) => {
   const [selectedMarket, setSelectedMarket] = useState(null);
   const [showModal, setShowModal] = useState(false);
 

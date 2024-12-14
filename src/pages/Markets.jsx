@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import MarketList from '../components/markets/MarketList';
 
-const MarketsPage = ({ markets, favorites, onToggleFavorite }) => {
+const MarketsPage = ({ markets, favorites, onToggleFavorite, realTimeData }) => {
   return (
     <div>
-      <MarketList markets={markets} favorites={favorites} onToggleFavorite={onToggleFavorite} />
+      <MarketList
+        markets={markets}
+        favorites={favorites}
+        onToggleFavorite={onToggleFavorite}
+        realTimeData={realTimeData}
+      />
     </div>
   );
 };
