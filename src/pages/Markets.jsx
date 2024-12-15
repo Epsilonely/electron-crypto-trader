@@ -1,7 +1,7 @@
 import React from 'react';
 import MarketList from '../components/markets/MarketList';
 
-const MarketsPage = ({ markets, favorites, onToggleFavorite, realTimeData }) => {
+const MarketsPage = ({ markets, favorites, onToggleFavorite, realTimeData, status }) => {
   return (
     <div>
       <MarketList
@@ -9,6 +9,7 @@ const MarketsPage = ({ markets, favorites, onToggleFavorite, realTimeData }) => 
         favorites={favorites}
         onToggleFavorite={onToggleFavorite}
         realTimeData={realTimeData}
+        status={status}
       />
     </div>
   );

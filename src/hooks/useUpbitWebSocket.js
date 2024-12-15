@@ -6,6 +6,34 @@ export const useUpbitWebSocket = (markets) => {
   const [status, setStatus] = useState(WS_STATUS.DISCONNECTED);
   const [error, setError] = useState(null);
   const wsRef = useRef(null);
+  const checkIntervalRef = useRef(null);
+
+  // 웹소켓 상태 체크 및 필요시 재연결
+  const checkConnection = useCallback(() => {
+    if (markets.length > 0) {
+      console.log('Checking WebSocket connection...', {
+        hasMarkets: markets.length > 0,
+        connectionState: wsRef.current?.readyState,
+      });
+
+      // 즐겨찾기가 있는데 연결이 없거나 닫혀있는 경우
+      if (!wsRef.current || wsRef.current.readyState !== WS_READY_STATE.OPEN) {
+        console.log('Connection lost or not established. Attempting to reconnect...');
+        connectWebSocket();
+      }
+    }
+  }, [markets]);
+
+  // 주기적 연결 상태 체크 설정
+  useEffect(() => {
+    checkIntervalRef.current = setInterval(checkConnection, WS_CONFIG.RECONNECT_INTERVAL);
+
+    return () => {
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current);
+      }
+    };
+  }, [checkConnection]);
 
   const connectWebSocket = useCallback(() => {
     // 이미 연결 중이거나 연결된 상태면 리턴
@@ -13,7 +41,7 @@ export const useUpbitWebSocket = (markets) => {
       wsRef.current?.readyState === WS_READY_STATE.OPEN) {
       return;
     }
-
+    setStatus(WS_STATUS.CONNECTING);
     const ws = new WebSocket('wss://api.upbit.com/websocket/v1');
     wsRef.current = ws;
 
@@ -68,7 +96,7 @@ export const useUpbitWebSocket = (markets) => {
     ws.onclose = () => {
       console.log('WebSocket disconnected');
       setStatus(WS_STATUS.DISCONNECTED);
-      wsRef.current = null;
+      wsRef.current = WS_READY_STATE.CLOSED;
     };
   }, [markets]);
 

@@ -35,6 +35,7 @@ const App = () => {
               markets={markets}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
+              status={status}
               realTimeData={realTimeData || {}}
             />}
           {activeTab === 'favorites' &&

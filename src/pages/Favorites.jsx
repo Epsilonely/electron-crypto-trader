@@ -67,6 +67,7 @@ const FavoritesPage = ({ favorites, onToggleFavorite, realTimeData, addAlarm, st
               }}
               isFavorite={true}
               onToggleFavorite={onToggleFavorite}
+              wsStatus={status}
             />
           </div>
         ))}
