@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { WS_STATUS } from '../../constants/websocket';
 
-const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onToggleFavorite }) => {
+const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onToggleFavorite, wsStatus }) => {
   const [isFlashing, setIsFlashing] = useState(false);
 
   const getChangeColor = (change) => {
@@ -48,8 +49,15 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
             <h3 className="font-semibold text-lg text-white">
               {market.korean_name}
             </h3>
-            <p className="text-[#CBCBCB]/50 font-light text-sm mt-1">
+            <p className="text-[#CBCBCB]/50 font-light text-sm mt-1 flex items-center gap-1">
               {market.market}
+              {isFavorite && (
+                <span className={`w-2 h-2 rounded-full ${wsStatus === WS_STATUS.CONNECTED
+                  ? 'bg-green-500'
+                  : wsStatus === WS_STATUS.CONNECTING
+                    ? 'bg-yellow-500 animate-pulse'
+                    : 'bg-red-500'
+                  }`} />)}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -60,10 +68,9 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
             )}
             <button
               onClick={() => onToggleFavorite(market)}
-              className={`p-2 rounded-full hover:bg-[#18181C] transition-colors ${
-              isFavorite ? 'text-[#3B82F7]' : 'text-[#CBCBCB]/50'
-              }`}
-              >
+              className={`p-2 rounded-full hover:bg-[#18181C] transition-colors ${isFavorite ? 'text-[#3B82F7]' : 'text-[#CBCBCB]/50'
+                }`}
+            >
               {isFavorite ? '★' : '☆'}
             </button>
           </div>

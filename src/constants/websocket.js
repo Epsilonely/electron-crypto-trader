@@ -12,6 +12,6 @@ export const WS_READY_STATE = {
 };
 
 export const WS_CONFIG = {
-    RECONNECT_INTERVAL: 1000,
+    RECONNECT_INTERVAL: 3000,
     MAX_RECONNECT_ATTEMPTS: 5
 };

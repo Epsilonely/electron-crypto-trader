@@ -3,7 +3,7 @@ import axios from 'axios';
 import MarketCard from './MarketCard';
 import SearchBar from './SearchBar';
 
-const MarketList = ({ markets, favorites = [], onToggleFavorite, realTimeData }) => {
+const MarketList = ({ markets, favorites = [], onToggleFavorite, realTimeData, status }) => {
   const [prices, setPrices] = useState({});
   const [prevPrices, setPrevPrices] = useState({});
   const [changes, setChanges] = useState({});
@@ -95,6 +95,7 @@ const MarketList = ({ markets, favorites = [], onToggleFavorite, realTimeData })
             volume={volumes[market.market]}
             isFavorite={favorites.some(fav => fav.market === market.market)}
             onToggleFavorite={onToggleFavorite}
+            wsStatus={status}
           />
         ))}
       </div>
