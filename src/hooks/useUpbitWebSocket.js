@@ -37,11 +37,14 @@ export const useUpbitWebSocket = (markets) => {
 
   const connectWebSocket = useCallback(() => {
     // 이미 연결 중이거나 연결된 상태면 리턴
-    if (wsRef.current?.readyState === WS_READY_STATE.CONNECTING ||
-      wsRef.current?.readyState === WS_READY_STATE.OPEN) {
+    if (wsRef.current?.readyState === WS_READY_STATE.CONNECTING) {
+      setStatus(WS_STATUS.CONNECTING);
       return;
     }
-    setStatus(WS_STATUS.CONNECTING);
+
+    if (wsRef.current?.readyState === WS_READY_STATE.OPEN) {
+      return;
+    }
     const ws = new WebSocket('wss://api.upbit.com/websocket/v1');
     wsRef.current = ws;
 
@@ -90,7 +93,7 @@ export const useUpbitWebSocket = (markets) => {
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
       setError('WebSocket 연결 중 오류가 발생했습니다.');
-      setStatus(WS_STATUS.DISCONNECTED);
+      setStatus(WS_STATUS.CONNECTING);
     };
 
     ws.onclose = () => {

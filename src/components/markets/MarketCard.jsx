@@ -49,7 +49,7 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
             <h3 className="font-semibold text-lg text-white">
               {market.korean_name}
             </h3>
-            <p className="text-[#CBCBCB]/50 font-light text-sm mt-1 flex items-center gap-1">
+            <p className="text-[#CBCBCB]/50 font-light text-sm mt-1 flex items-center gap-1.5">
               {market.market}
               {isFavorite && (
                 <span className={`w-2 h-2 rounded-full ${wsStatus === WS_STATUS.CONNECTED
