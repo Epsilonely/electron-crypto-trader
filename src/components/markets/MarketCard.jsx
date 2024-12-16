@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WS_STATUS } from '../../constants/websocket';
 
-const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onToggleFavorite, wsStatus }) => {
+const MarketCard = React.memo(({ market, price, prevPrice, change, volume, isFavorite, onToggleFavorite, wsStatus }) => {
   const [isFlashing, setIsFlashing] = useState(false);
 
   const getChangeColor = (change) => {
@@ -28,14 +28,26 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
   };
 
   useEffect(() => {
+    let mounted = true;
+
     if (price !== prevPrice) {
       setIsFlashing(true);
       const timer = setTimeout(() => {
-        setIsFlashing(false);
-      }, 200); // 0.x초 후 애니메이션 상태 제거
-      return () => clearTimeout(timer);
+        if (mounted) {
+          setIsFlashing(false);
+        }
+      }, 200);
+
+      return () => {
+        mounted = false;
+        clearTimeout(timer);
+      };
     }
   }, [price, prevPrice]);
+
+  if (!market) {
+    return null;
+  }
 
   return (
     <div className="relative">
@@ -49,16 +61,18 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
             <h3 className="font-semibold text-lg text-white">
               {market.korean_name}
             </h3>
-            <p className="text-[#CBCBCB]/50 font-light text-sm mt-1 flex items-center gap-1.5">
-              {market.market}
+            <div className="text-[#CBCBCB]/50 font-light text-sm mt-1 flex items-center gap-1.5">
+              <span>{market.market}</span>
               {isFavorite && (
                 <span className={`w-2 h-2 rounded-full ${wsStatus === WS_STATUS.CONNECTED
                   ? 'bg-green-500'
                   : wsStatus === WS_STATUS.CONNECTING
                     ? 'bg-yellow-500 animate-pulse'
                     : 'bg-red-500'
-                  }`} />)}
-            </p>
+                  }`}
+                  key={`status-${market.market}`} />
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {volume?.price && (
@@ -91,6 +105,6 @@ const MarketCard = ({ market, price, prevPrice, change, volume, isFavorite, onTo
       </div>
     </div>
   );
-};
+});
 
 export default MarketCard;
