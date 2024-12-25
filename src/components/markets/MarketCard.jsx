@@ -1,8 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WS_STATUS } from '../../constants/websocket';
 
 const MarketCard = React.memo(({ market, price, prevPrice, change, volume, isFavorite, onToggleFavorite, wsStatus }) => {
   const [isFlashing, setIsFlashing] = useState(false);
+  const timerRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (price !== prevPrice) {
+      setIsFlashing(true);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      
+      timerRef.current = setTimeout(() => {
+        if (mountedRef.current) {
+          setIsFlashing(false);
+        }
+      }, 200);
+    }
+  }, [price, prevPrice]);
 
   const getChangeColor = (change) => {
     if (change > 0) return 'text-[#FD668B]';
@@ -26,24 +52,6 @@ const MarketCard = React.memo(({ market, price, prevPrice, change, volume, isFav
     }
     return price.toLocaleString();
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    if (price !== prevPrice) {
-      setIsFlashing(true);
-      const timer = setTimeout(() => {
-        if (mounted) {
-          setIsFlashing(false);
-        }
-      }, 200);
-
-      return () => {
-        mounted = false;
-        clearTimeout(timer);
-      };
-    }
-  }, [price, prevPrice]);
 
   if (!market) {
     return null;
