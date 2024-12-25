@@ -16,6 +16,10 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
+    "@types/electron": "^1.6.12",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "babel-loader": "^9.2.1",
     "concurrently": "^9.1.0",
@@ -27,6 +31,7 @@
     "postcss-loader": "^8.1.1",
     "style-loader": "^4.0.0",
     "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.1.0"

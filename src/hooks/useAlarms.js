@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+const { ipcRenderer } = window.require('electron');
 
-export const useAlarms = () => {
+export const useAlarms = (realTimeData) => {
   const [alarms, setAlarms] = useState(() => {
     try {
       const saved = localStorage.getItem('alarms');
@@ -10,6 +11,20 @@ export const useAlarms = () => {
       return [];
     }
   });
+
+  const checkAlarmCondition = (alarm, currentPrice) => {
+    if (alarm.type === 'price') {
+      if (alarm.value > alarm.registeredPrice) {
+        return currentPrice >= alarm.value;
+      } else {
+        return currentPrice <= alarm.value;
+      }
+    } else if (alarm.type === 'change') {
+      const changeRate = ((currentPrice - alarm.registeredPrice) / alarm.registeredPrice) * 100;
+      return Math.abs(changeRate) >= Math.abs(alarm.value);
+    }
+    return false;
+  };
 
   useEffect(() => {
     localStorage.setItem('alarms', JSON.stringify(alarms));
@@ -33,17 +48,43 @@ export const useAlarms = () => {
     setAlarms(prev => prev.filter(alarm => alarm.id !== alarmId));
   };
 
-  const checkAlarmCondition = (alarm, currentPrice) => {
-    if (alarm.triggered) return false;
+  useEffect(() => {
+    if (!realTimeData) return;
 
-    if (alarm.type === 'price') {
-      return currentPrice === alarm.value;
-    } else if (alarm.type === 'change') {
-      const priceChange = ((currentPrice - alarm.registeredPrice) / alarm.registeredPrice) * 100;
-      return Math.abs(priceChange) >= Math.abs(alarm.value);
-    }
-    return false;
-  };
+    const checkAlarms = () => {
+      let triggered = false;
+      
+      setAlarms(prevAlarms => {
+        const remainingAlarms = [];
+        
+        prevAlarms.forEach(alarm => {
+          const currentPrice = realTimeData[alarm.market.market]?.trade_price;
+          
+          if (!alarm.triggered && currentPrice && checkAlarmCondition(alarm, currentPrice)) {
+            triggered = true;
+            
+            // Electron 알림 발송
+            ipcRenderer.send('show-notification', {
+              title: `${alarm.market.korean_name} 알람`,
+              body: `목표가 ${alarm.value}${alarm.type === 'price' ? 'KRW' : '%'} 도달!\n현재가: ${currentPrice.toLocaleString()} KRW`
+            });
+          } else {
+            remainingAlarms.push(alarm);
+          }
+        });
 
-  return { alarms, addAlarm, removeAlarm, checkAlarmCondition };
+        return remainingAlarms;
+      });
+
+      if (triggered) {
+        const audio = new Audio('/assets/alarm.mp3');
+        audio.play().catch(console.error);
+      }
+    };
+
+    const intervalId = setInterval(checkAlarms, 1000);
+    return () => clearInterval(intervalId);
+  }, [realTimeData]);
+
+  return { alarms, addAlarm, removeAlarm };
 };
