@@ -24,11 +24,12 @@ export const useAlarms = (realTimeData) => {
     } else if (alarm.type === 'change') {
       const changeRate = ((currentPrice - alarm.registeredPrice) / alarm.registeredPrice) * 100;
       
-      if (alarm.value > 0) {
-        // 상승률 목표
+      // 목표 변동률과 현재 변동률의 절대값 비교
+      if (alarm.value >= 0) {
+        // 상승률 목표: 현재 변동률이 목표 이상
         return changeRate >= alarm.value;
       } else {
-        // 하락률 목표
+        // 하락률 목표: 현재 변동률이 목표 이하
         return changeRate <= alarm.value;
       }
     }
@@ -95,6 +96,8 @@ export const useAlarms = (realTimeData) => {
             const changeRate = ((currentPrice - alarm.registeredPrice) / alarm.registeredPrice) * 100;
             console.log(`- 등록가: ${alarm.registeredPrice.toLocaleString()} KRW`);
             console.log(`- 현재 변동률: ${changeRate.toFixed(2)}%`);
+            console.log(`- 목표 변동률: ${alarm.value}%`);
+            console.log(`- 방향: ${alarm.value >= 0 ? '상승' : '하락'}`);
           }
 
           const isTriggered = checkAlarmCondition(alarm, currentPrice);
@@ -119,10 +122,6 @@ export const useAlarms = (realTimeData) => {
         return remainingAlarms;
       });
 
-      if (triggered) {
-        const audio = new Audio('/assets/alarm.mp3');
-        audio.play().catch(console.error);
-      }
     };
 
     const intervalId = setInterval(checkAlarms, 1000);

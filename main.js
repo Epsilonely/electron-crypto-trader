@@ -50,18 +50,9 @@ function createWindow() {
      title,
      body,
      icon: path.join(__dirname, 'assets/icon.png'),
-     silent: true, // 기본 알림음 비활성화 (커스텀 사운드 사용)
-     toastXml: `
-       <toast>
-         <visual>
-           <binding template="ToastGeneric">
-             <text>${title}</text>
-             <text>${body}</text>
-           </binding>
-         </visual>
-         <audio src="ms-winsoundevent:Notification.Default"/>
-       </toast>
-     `
+     silent: false, // Windows 기본 알림음 사용
+     urgency: 'critical', // 알림 우선순위 높임
+     timeoutType: 'never' // 알림이 자동으로 사라지지 않음
    });
 
    notification.show();
