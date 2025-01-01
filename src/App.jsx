@@ -12,9 +12,8 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('markets');
   const [markets, setMarkets] = useState([]);
   const { favorites, toggleFavorite } = useFavorites();
-  const { alarms, addAlarm, removeAlarm, checkAlarmCondition } = useAlarms();
-
   const { realTimeData, status, error } = useUpbitWebSocket(favorites);
+  const { alarms, addAlarm, removeAlarm } = useAlarms(realTimeData);
 
   useEffect(() => {
     const fetchMarketData = async () => {

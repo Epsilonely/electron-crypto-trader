@@ -46,11 +46,35 @@ function createWindow() {
 
  // IPC 리스너 설정
  ipcMain.on('show-notification', (event, { title, body }) => {
-   new Notification({
+   const notification = new Notification({
      title,
      body,
-     icon: path.join(__dirname, 'assets/icon.png')
-   }).show();
+     icon: path.join(__dirname, 'assets/icon.png'),
+     silent: true, // 기본 알림음 비활성화 (커스텀 사운드 사용)
+     toastXml: `
+       <toast>
+         <visual>
+           <binding template="ToastGeneric">
+             <text>${title}</text>
+             <text>${body}</text>
+           </binding>
+         </visual>
+         <audio src="ms-winsoundevent:Notification.Default"/>
+       </toast>
+     `
+   });
+
+   notification.show();
+
+   // 알림 클릭 이벤트
+   notification.on('click', () => {
+     // 메인 윈도우 포커스
+     const mainWindow = BrowserWindow.getAllWindows()[0];
+     if (mainWindow) {
+       if (mainWindow.isMinimized()) mainWindow.restore();
+       mainWindow.focus();
+     }
+   });
  });
 
  win.loadFile('src/index.html');
