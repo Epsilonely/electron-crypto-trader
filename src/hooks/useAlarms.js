@@ -64,8 +64,6 @@ export const useAlarms = (realTimeData) => {
       return;
     }
 
-    console.log('[알람] realTimeData 수신:', Object.keys(realTimeData).length, '개의 코인');
-
     const checkAlarms = () => {
       if (alarms.length === 0) {
         return;
